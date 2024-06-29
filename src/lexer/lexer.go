@@ -1,6 +1,9 @@
 package lexer
 
-import "monkey/src/token"
+import (
+	"bytes"
+	"monkey/src/token"
+)
 
 type Lexer struct {
 	input        string
@@ -72,6 +75,9 @@ func (l *Lexer) NextToken() token.Token {
 		tok = newToken(token.LBRACE, l.ch)
 	case '}':
 		tok = newToken(token.RBRACE, l.ch)
+	case '"':
+		tok.Type = token.STRING
+		tok.Literal = l.readString()
 	case 0:
 		tok.Literal = ""
 		tok.Type = token.EOF
@@ -130,10 +136,51 @@ func (l *Lexer) peekChar() byte {
 	}
 }
 
+func (l *Lexer) readString() string {
+	position := l.position + 1
+	l.readChar()
+	for {
+		p := l.ch
+		l.readChar()
+		if (l.ch == '"' && p != '\\') || l.ch == 0 {
+			break
+		}
+	}
+
+	str := l.input[position:l.position]
+
+	var out bytes.Buffer
+
+	var skipNext = false
+
+	for i, ch := range str {
+		if skipNext {
+			skipNext = false
+			continue
+		}
+		if ch == '\\' && i < len(str)-1 && str[i+1] == 'n' {
+			out.WriteByte(10)
+			skipNext = true
+		} else if ch == '\\' && i < len(str)-1 && str[i+1] == '"' {
+			out.WriteByte(byte('"'))
+			skipNext = true
+		} else {
+			out.WriteByte(byte(ch))
+		}
+	}
+
+	return out.String()
+
+}
+
 func isLetter(ch byte) bool {
 	return 'a' <= ch && ch <= 'z' || 'A' <= ch && ch <= 'Z' || ch == '_'
 }
 
 func isDigit(ch byte) bool {
 	return '0' <= ch && ch <= '9'
+}
+
+func isString(ch byte) bool {
+	return ch == '"'
 }

@@ -16,14 +16,15 @@ const (
 	INT   = "INT"
 
 	// Operators
-	ASSIGN   = "="
-	PLUS     = "+"
-	MINUS    = "-"
-	SLASH    = "/"
-	ASTERISK = "*"
-	BANG     = "!"
-	EQ       = "=="
-	NOT_EQ   = "!="
+	ASSIGN    = "="
+	PLUS      = "+"
+	MINUS     = "-"
+	SLASH     = "/"
+	ASTERISK  = "*"
+	BANG      = "!"
+	EQ        = "=="
+	NOT_EQ    = "!="
+	BACKSLASH = "\\"
 
 	LT = "<"
 	GT = ">"
@@ -43,6 +44,7 @@ const (
 	RETURN   = "RETURN"
 	TRUE     = "TRUE"
 	FALSE    = "FALSE"
+	STRING   = "STRING"
 )
 
 var keywords = map[string]TokenType{
