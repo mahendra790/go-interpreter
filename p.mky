@@ -1,0 +1,9 @@
+let a = 5;
+
+let c = a * 9;
+
+let double = fn(x) {
+    x * 2
+}
+
+double(c)
