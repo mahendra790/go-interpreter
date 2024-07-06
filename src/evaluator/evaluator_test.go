@@ -1,6 +1,7 @@
 package evaluator
 
 import (
+	"bytes"
 	"fmt"
 	"monkey/src/lexer"
 	"monkey/src/object"
@@ -442,7 +443,7 @@ func testEval(input string) object.Object {
 	program := p.ParseProgram()
 	env := object.NewEnvironment()
 
-	r := Eval(program, env)
+	r := Eval(program, env, &bytes.Buffer{})
 
 	fmt.Printf("inter %+v", env)
 

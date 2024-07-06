@@ -1,0 +1,65 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <script src="wasm_exec.js"></script>
+    <script>
+      const go = new Go();
+      WebAssembly.instantiateStreaming(
+        fetch("main.wasm"),
+        go.importObject
+      ).then((result) => {
+        go.run(result.instance);
+      });
+    </script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      function run() {
+        const button = document.querySelector("button");
+        button.addEventListener("click", () => {
+          const input = document.querySelector("textarea").value;
+          const output = document.querySelector("#output");
+          output.value = execute(input || "");
+        });
+      }
+      document.addEventListener("DOMContentLoaded", run);
+    </script>
+  </head>
+  <body class="p-2">
+    <h1 class="mb-4 text-3xl">Interpreter in GO</h1>
+    <div class="flex row gap-2">
+      <div class="flex-1">
+        <div class="flex row justify-between mb-1">
+          <h2 class="text-xl">Input</h2>
+          <button class="bg-blue-500 text-white px-2 py-1 ml-2 rounded">
+            submit
+          </button>
+        </div>
+        <textarea rows="20" class="font-mono w-full border p-4 text-sm">
+        </textarea>
+      </div>
+      <div class="flex-1">
+        <h2 class="text-xl mb-2">Output</h2>
+        <textarea
+          rows="20"
+          readonly
+          id="output"
+          class="border p-4 w-full font-mono text-sm"
+        ></textarea>
+      </div>
+    </div>
+    <div class="mt-4">
+      <h2 class="text-xl mb-2">Sample Code</h2>
+      <pre class="border p-2 w-full">
+let int = 1;
+let str = "fdsafsa";
+let sum = fn(x, y) { x + y};
+
+let arr = [1, 2, 3, 4]
+let map = {"name": "mahendra", "age": 89}
+
+puts(sum(1, 2))
+    </pre
+      >
+    </div>
+  </body>
+</html>

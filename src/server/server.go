@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"monkey/src/evaluator"
 	"monkey/src/lexer"
 	"monkey/src/object"
@@ -8,6 +9,9 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+
+	"flag"
+	"log"
 )
 
 type ExecuteBody struct {
@@ -36,7 +40,7 @@ func Start() {
 			return
 		}
 
-		evaluated := evaluator.Eval(program, object.NewEnvironment())
+		evaluated := evaluator.Eval(program, object.NewEnvironment(), &bytes.Buffer{})
 
 		ctx.JSON(200, gin.H{
 			"message": "success",
@@ -44,4 +48,16 @@ func Start() {
 		})
 	})
 	http.ListenAndServe(":8080", r)
+}
+
+var (
+	listen = flag.String("listen", ":8080", "listen address")
+	dir    = flag.String("dir", ".", "directory to serve")
+)
+
+func RunServer() {
+	flag.Parse()
+	log.Printf("listening on %q...", *listen)
+	err := http.ListenAndServe(*listen, http.FileServer(http.Dir(*dir)))
+	log.Fatalln(err)
 }

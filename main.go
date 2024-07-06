@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"monkey/src/evaluator"
 	"monkey/src/lexer"
@@ -26,15 +27,7 @@ func main() {
 	program := p.ParseProgram()
 
 	env := object.NewEnvironment()
-	evaluated := evaluator.Eval(program, env)
+	evaluated := evaluator.Eval(program, env, &bytes.Buffer{})
 
 	fmt.Println(evaluated.Inspect())
-
-	// user, err := user.Current()
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// fmt.Printf("Hello %s! This is the Monnkey Programming Language!\n", user.Username)
-	// fmt.Printf("Feel free to type in commands\n")
-	// repl.Start(os.Stdin, os.Stdout)
 }
