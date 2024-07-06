@@ -7,12 +7,10 @@ import (
 	"monkey/src/lexer"
 	"monkey/src/object"
 	"monkey/src/parser"
-	"monkey/src/server"
 	"os"
 )
 
 func main() {
-	server.Start()
 	content, err := os.ReadFile("p.mky")
 	if err != nil {
 		fmt.Printf("error")
