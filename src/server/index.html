@@ -34,8 +34,10 @@
             submit
           </button>
         </div>
-        <textarea rows="20" class="font-mono w-full border p-4 text-sm">
-        </textarea>
+        <textarea
+          rows="20"
+          class="font-mono w-full border p-4 text-sm"
+        ></textarea>
       </div>
       <div class="flex-1">
         <h2 class="text-xl mb-2">Output</h2>
@@ -56,6 +58,32 @@ let sum = fn(x, y) { x + y};
 
 let arr = [1, 2, 3, 4]
 let map = {"name": "mahendra", "age": 89}
+
+
+let sum = 0;
+let prod = 0;
+for i, v in [1, 2, 3] {
+    sum = sum + i;
+    prod = prod + v;
+}
+
+for key, val in {"name": "mahendra", "age": 10} {
+  puts("key", key, "val", val)
+}
+
+let nested = [[1, 2], [3, 4, 5], [1]]
+
+for i, v in nested {
+  for j, k in v {
+    puts(i, j, k)
+  }
+}
+
+for i, v in range(0, 2) {
+  puts(i, v)
+}
+
+puts(sum, prod)
 
 puts(sum(1, 2))
     </pre

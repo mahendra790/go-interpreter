@@ -112,4 +112,29 @@ var builtins = map[string]*object.Builtin{
 			return NULL
 		},
 	},
+	"range": {
+		Name: "range",
+		Fn: func(args ...object.Object) object.Object {
+			if len(args) != 2 {
+				return newError("wrong number of arguments to `range`. got=%d, want=2", len(args))
+			}
+
+			if args[0].Type() != object.INTEGER_OBJ || args[1].Type() != object.INTEGER_OBJ {
+				return newError("arg must be INTEGERS")
+			}
+
+			start := args[0].(*object.Integer).Value
+			end := args[1].(*object.Integer).Value
+
+			arr := make([]object.Object, end-start)
+
+			for i := range arr {
+				arr[i] = &object.Integer{Value: start + int64(i)}
+			}
+
+			return &object.Array{
+				Elements: arr,
+			}
+		},
+	},
 }

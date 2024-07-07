@@ -1,33 +1,33 @@
 package main
 
 import (
-	"bytes"
-	"fmt"
-	"monkey/src/evaluator"
-	"monkey/src/lexer"
-	"monkey/src/object"
-	"monkey/src/parser"
-	"os"
+	"monkey/src/server"
 )
 
 func main() {
-	content, err := os.ReadFile("p.mky")
-	if err != nil {
-		fmt.Printf("error")
-		return
-	}
 
-	str := string(content)
+	server.RunServer()
+	// js.Global().Set("execute", js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	// 	if len(args) == 0 {
+	// 		return "Hello, World!"
+	// 	}
+	// 	code := args[0].String()
 
-	l := lexer.New(str)
-	p := parser.New(l)
+	// 	l := lexer.New(code)
+	// 	p := parser.New(l)
 
-	program := p.ParseProgram()
+	// 	program := p.ParseProgram()
 
-	env := object.NewEnvironment()
-	buffer := &bytes.Buffer{}
-	evaluated := evaluator.Eval(program, env, buffer)
+	// 	if len(p.Errors()) > 0 {
+	// 		return strings.Join(p.Errors(), ", ")
+	// 	}
 
-	fmt.Println(buffer.String())
-	fmt.Println(evaluated.Inspect())
+	// 	buffer := bytes.Buffer{}
+
+	// 	evaluated := evaluator.Eval(program, object.NewEnvironment(), &buffer)
+
+	// 	return buffer.String() + evaluated.Inspect()
+	// }))
+
+	// select {}
 }
