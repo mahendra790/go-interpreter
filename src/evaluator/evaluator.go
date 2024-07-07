@@ -117,7 +117,68 @@ func Eval(node ast.Node, env *object.Environment, buffer *bytes.Buffer) object.O
 			return val
 		}
 
-		env.Set(node.Variable.Value, val)
+		ok := env.UpdateValue(node.Variable.Value, val)
+		if !ok {
+			return newError("invalid assignment to non declared identifier %s", node.Variable.Value)
+		}
+
+	case *ast.IndexAssignmentExpression:
+		index := Eval(node.Index.Index, env, buffer)
+		if isError(index) {
+			return index
+		}
+
+		val := Eval(node.Value, env, buffer)
+		if isError(val) {
+			return val
+		}
+
+		left := Eval(node.Index.Left, env, buffer)
+
+		return evalIndexAssignmentExpression(left, index, val)
+
+	case *ast.ForStatement:
+		iterator := Eval(node.Iterator, env, buffer)
+		if isError(iterator) {
+			return iterator
+		}
+
+		forEnv := object.NewEnclosedEnvironement(env)
+
+		switch {
+		case iterator.Type() == object.ARRAY_OBJ:
+			arr := iterator.(*object.Array)
+			for i, v := range arr.Elements {
+
+				forEnv.Set(node.Index.Value, &object.Integer{Value: int64(i)})
+				forEnv.Set(node.Value.Value, v)
+
+				evalBlockStatement(node.Block, forEnv, buffer)
+
+			}
+		case iterator.Type() == object.STRING_OBJ:
+			str := iterator.(*object.String)
+			for i, v := range str.Value {
+				forEnv.Set(node.Index.Value, &object.Integer{Value: int64(i)})
+				forEnv.Set(node.Value.Value, &object.String{Value: string(v)})
+
+				evalBlockStatement(node.Block, forEnv, buffer)
+			}
+
+		case iterator.Type() == object.HASH_OBJ:
+			pairs := iterator.(*object.Hash)
+			for _, v := range pairs.Pairs {
+				forEnv.Set(node.Index.Value, v.Key)
+				forEnv.Set(node.Value.Value, v.Value)
+
+				evalBlockStatement(node.Block, forEnv, buffer)
+			}
+
+		default:
+			return newError("for iterator must resolve to array, string or hash got %T", iterator)
+		}
+
+		return NULL
 
 	case *ast.HashLiteral:
 		return evalHashLiteral(node, env, buffer)
@@ -371,6 +432,35 @@ func evalIndexExpression(left, index object.Object) object.Object {
 	}
 }
 
+func evalIndexAssignmentExpression(left, index, value object.Object) object.Object {
+	switch {
+	case left.Type() == object.ARRAY_OBJ && index.Type() == object.INTEGER_OBJ:
+		return evalArrayIndexAssignmentExpression(left, index, value)
+
+	case left.Type() == object.HASH_OBJ:
+		return evalHashIndexAssignmnetExpression(left, index, value)
+
+	default:
+		return newError("index assignemnt not supported: %s", left.Type())
+	}
+
+}
+
+func evalArrayIndexAssignmentExpression(left, index, value object.Object) object.Object {
+	arr := left.(*object.Array)
+
+	idx := index.(*object.Integer).Value
+
+	if idx >= 0 && idx < int64(len(arr.Elements)) {
+		arr.Elements[idx] = value
+
+		return value
+	}
+
+	return newError("index out of range: got = %d for array of size = %d", idx, len(arr.Elements))
+
+}
+
 func evalHashLiteral(node *ast.HashLiteral, env *object.Environment, buffer *bytes.Buffer) object.Object {
 	pairs := make(map[object.HashKey]object.HashPair)
 
@@ -423,7 +513,20 @@ func evalHashIndexExpression(hash, index object.Object) object.Object {
 	}
 
 	return pair.Value
+}
 
+func evalHashIndexAssignmnetExpression(hash, index, val object.Object) object.Object {
+	hashObject := hash.(*object.Hash)
+	key, ok := index.(object.Hashable)
+	if !ok {
+		return newError("unusable as hash key: %s", index.Type())
+	}
+	hashObject.Pairs[key.HashKey()] = object.HashPair{
+		Key:   index,
+		Value: val,
+	}
+
+	return NULL
 }
 
 func newError(format string, a ...interface{}) *object.Error {

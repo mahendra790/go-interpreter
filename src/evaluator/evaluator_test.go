@@ -215,6 +215,21 @@ func TestLetStatements(t *testing.T) {
 	}
 }
 
+func TestForStatement(t *testing.T) {
+	input := `
+let arr = [1, 2, 3];
+let sum = 1;
+for i, v in arr {
+	sum = sum + i * v;
+	puts("sum", sum)
+}
+sum;
+	`
+
+	testIntegerObject(t, testEval(input), 9)
+
+}
+
 func TestFunctionObject(t *testing.T) {
 	input := "fn(x) { x + 2; };"
 

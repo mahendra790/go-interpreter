@@ -53,6 +53,53 @@ let foobar = 838383;
 
 }
 
+func TestIndexAssignmentStatment(t *testing.T) {
+	tests := []struct {
+		input            string
+		expectedVariable string
+		expectedIndex    string
+		expected         string
+	}{
+		{"let a = [1, 2]; a[0] = 5;", "a", "0", "5"},
+		{"let a = [1, 2]; a[1] = 5;", "a", "1", "5"},
+		{"let a = [1, 2]; a[3] = 5 + 5;", "a", "3", "(5 + 5)"},
+		{"let a = [1, 2]; a[2+2] = 5;", "a", "(2 + 2)", "5"},
+		{`let a = {"name": 5}; a["name"] = 6;`, "a", "name", "6"},
+	}
+
+	for _, tt := range tests {
+		program := setup(t, tt.input)
+
+		fmt.Println(program.String())
+
+		if len(program.Statements) != 2 {
+			t.Fatalf("program.Statements does not contain 3 statements. got=%d", len(program.Statements))
+		}
+
+		stmt := program.Statements[1].(*ast.ExpressionStatement)
+		exp, ok := stmt.Expression.(*ast.IndexAssignmentExpression)
+		if !ok {
+			t.Error("p", program.String())
+			t.Fatalf("program.Statement[1] not IndexAssignmentStatement. got=%T %+v", stmt, stmt)
+		}
+
+		if exp.Index.Left.String() != tt.expectedVariable {
+			t.Fatalf("exp.Variable not %s. got=%s", tt.expectedVariable, exp.Index.Left.String())
+		}
+
+		if exp.Index.Index.String() != tt.expectedIndex {
+			t.Fatalf("exp.Index.Index not %s. got=%s", tt.expectedIndex, exp.Index.Index.String())
+		}
+
+		if exp.Value.String() != tt.expected {
+			t.Fatalf("exp.Value not %s. got=%s", tt.expected, exp.Value.String())
+
+		}
+
+	}
+
+}
+
 func TestLetStatements(t *testing.T) {
 
 	tests := []struct {
@@ -559,6 +606,51 @@ func TestIfExpression(t *testing.T) {
 	}
 
 }
+
+func TestForStatement(t *testing.T) {
+	input := `
+for i, v in arr {
+	let x = i * 2;
+}
+`
+
+	program := setup(t, input)
+
+	pLen := len(program.Statements)
+
+	if pLen != 1 {
+		t.Fatalf("len(program.Statements) is not 1. got=%d", pLen)
+	}
+	stmt, ok := program.Statements[0].(*ast.ForStatement)
+
+	if !ok {
+		t.Fatalf("program.Statements[0] not of type (*ast.ForStatement). got=%T", stmt)
+	}
+
+	if stmt.Iterator.String() != "arr" {
+		t.Fatalf("stmt.Iterator.Value not %q got=%q", "arr", stmt.Iterator.String())
+	}
+
+	if stmt.Index.Value != "i" {
+		t.Fatalf("stmt.Index.Value not i got=%q", stmt.Index.Value)
+	}
+
+	if stmt.Value.Value != "v" {
+		t.Fatalf("stmt.Value.Value not i got=%q", stmt.Value.Value)
+	}
+
+	if len(stmt.Block.Statements) != 1 {
+		t.Fatalf("stmt.Block.Statements len not 1 got=%d", len(stmt.Block.Statements))
+	}
+
+	block, ok := stmt.Block.Statements[0].(*ast.LetStatement)
+	if !ok {
+		t.Fatalf("body statment 1 not LetStatement got=%T", stmt.Block.Statements[0])
+	}
+
+	testLetStatment(t, block, "x")
+}
+
 func TestIfElseExpression(t *testing.T) {
 	input := "if (x < y) { x } else { y }"
 

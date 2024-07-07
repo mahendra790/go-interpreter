@@ -49,6 +49,32 @@ func (ls *LetStatement) String() string {
 	return out.String()
 }
 
+type ForStatement struct {
+	Token    token.Token
+	Index    *Identifier
+	Value    *Identifier
+	Iterator Expression
+	Block    *BlockStatement
+}
+
+func (fs *ForStatement) statementNode()       {}
+func (fs *ForStatement) TokenLiteral() string { return fs.Token.Literal }
+func (fs *ForStatement) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(fs.TokenLiteral() + " ")
+	out.WriteString(fs.Index.Value)
+	out.WriteString(", ")
+	out.WriteString(fs.Value.Value)
+	out.WriteString(" in ")
+	out.WriteString(fs.Iterator.String())
+	out.WriteString("{\n")
+	out.WriteString(fs.Block.String())
+	out.WriteString("}")
+
+	return out.String()
+}
+
 type Identifier struct {
 	Token token.Token
 	Value string
@@ -336,6 +362,27 @@ func (as *AssignStatement) String() string {
 	out.WriteString(as.Variable.String())
 	out.WriteString(" = ")
 	out.WriteString(as.Value.String())
+
+	return out.String()
+}
+
+type IndexAssignmentExpression struct {
+	Token token.Token
+	Index *IndexExpression
+	Value Expression
+}
+
+func (is *IndexAssignmentExpression) expressionNode()      {}
+func (is *IndexAssignmentExpression) TokenLiteral() string { return is.Token.Literal }
+func (is *IndexAssignmentExpression) String() string {
+	var out bytes.Buffer
+
+	out.WriteString(is.Index.Left.String())
+	out.WriteString("[")
+	out.WriteString(is.Index.Index.String())
+	out.WriteString("]")
+	out.WriteString(" = ")
+	out.WriteString(is.Value.String())
 
 	return out.String()
 }

@@ -31,6 +31,7 @@ if (5 < 10) {
 ""
 [1, 2];
 {"foo": "bar"}
+for i, v in arr
 `
 
 	tests := []struct {
@@ -124,6 +125,12 @@ if (5 < 10) {
 		{token.COLON, ":"},
 		{token.STRING, "bar"},
 		{token.RBRACE, "}"},
+		{token.FOR, "for"},
+		{token.IDENT, "i"},
+		{token.COMMA, ","},
+		{token.IDENT, "v"},
+		{token.IN, "in"},
+		{token.IDENT, "arr"},
 		{token.EOF, ""},
 	}
 

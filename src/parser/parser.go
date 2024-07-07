@@ -100,6 +100,8 @@ func (p *Parser) parseStatement() ast.Statement {
 		return p.parseLetStatment()
 	case token.RETURN:
 		return p.parseReturnStatement()
+	case token.FOR:
+		return p.parseForStatment()
 	case token.IDENT:
 		if p.peekToken.Type == token.ASSIGN {
 			return p.parseAssignExpression()
@@ -150,6 +152,45 @@ func (p *Parser) parseReturnStatement() ast.Statement {
 	}
 
 	return stmt
+}
+
+func (p *Parser) parseForStatment() ast.Statement {
+	stmt := &ast.ForStatement{Token: p.curToken}
+
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	fmt.Println("p", p.curToken, p.peekToken)
+
+	stmt.Index = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	if !p.expectPeek(token.COMMA) {
+		return nil
+	}
+
+	if !p.expectPeek(token.IDENT) {
+		return nil
+	}
+
+	stmt.Value = &ast.Identifier{Token: p.curToken, Value: p.curToken.Literal}
+
+	if !p.expectPeek(token.IN) {
+		return nil
+	}
+
+	p.nextToken()
+
+	stmt.Iterator = p.parseExpression(LOWEST)
+
+	if !p.expectPeek(token.LBRACE) {
+		return nil
+	}
+
+	stmt.Block = p.parseBlockStatement()
+
+	return stmt
+
 }
 
 func (p *Parser) parseExpressionStatement() ast.Statement {
@@ -414,6 +455,20 @@ func (p *Parser) parseIndexExpression(left ast.Expression) ast.Expression {
 
 	if !p.expectPeek(token.RBRACKET) {
 		return nil
+	}
+
+	if p.peekTokenIs(token.ASSIGN) {
+		p.nextToken()
+		p.nextToken()
+
+		val := p.parseExpression(LOWEST)
+
+		return &ast.IndexAssignmentExpression{
+			Token: exp.Token,
+			Index: exp,
+			Value: val,
+		}
+
 	}
 
 	return exp
