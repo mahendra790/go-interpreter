@@ -86,6 +86,51 @@ for i, v in range(0, 2) {
 puts(sum, prod)
 
 puts(sum(1, 2))
+
+let sort = fn(arr) {
+  for i, val in range(0, len(arr)) {
+      for j, temp in range(i+1, len(arr)) {
+         puts(arr[val], arr[temp])
+         if (arr[temp] < arr[val]) {
+            let t = arr[val]
+            arr[val] = arr[temp];
+            arr[temp] = t;
+          }
+      }
+  }
+  
+  return arr;
+}
+
+sort([10, 9, 8, 1, 2, 0, 9])
+
+// filter function for arr with f function
+let filter = fn(arr, f) {
+    let result = []
+    for i, v in arr {
+        if (f(v)) {
+            result = push(result, v)
+        }
+    }
+    result
+}
+
+// map function for arr with f function
+let map = fn(arr, f) {
+    let result = []
+    for i, v in arr {
+        result = push(result, f(v))
+    }
+    result
+}
+
+let filterRes = filter([1, 2, 3, 2, 1, 4, 5], fn(x) { x > 2 })
+let mapRes = map([1, 2, 3, 2, 1, 4, 5], fn(x) { x * x })
+
+puts("filter", filterRes)
+puts("map", mapRes)
+
+
     </pre
       >
     </div>

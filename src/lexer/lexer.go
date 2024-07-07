@@ -3,6 +3,7 @@ package lexer
 import (
 	"bytes"
 	"monkey/src/token"
+	"regexp"
 )
 
 type Lexer struct {
@@ -14,8 +15,14 @@ type Lexer struct {
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
+	l.trimComments()
 	l.readChar()
 	return l
+}
+
+func (l *Lexer) trimComments() {
+	regex := regexp.MustCompile(`//.*|/\*[\s\S]*?\*/|("(\\.|[^"])*")`)
+	l.input = regex.ReplaceAllString(l.input, "$1")
 }
 
 func (l *Lexer) readChar() {

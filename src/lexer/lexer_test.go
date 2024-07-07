@@ -9,8 +9,9 @@ func TestNextToken(t *testing.T) {
 	input := `let five = 5;
 let ten = 10;
 
+// add function
 let add = fn(x, y) {
-	x + y;
+	x + y; // comment
 };
 
 let result = add(five, ten);
